@@ -23,7 +23,7 @@
 char ALLOWED_CLIENTIP[20] =  "192.168.47.183";
 
 static void * Connectionthread(void*);
-void Data_Trans(int,int);
+void Data_Trans(int, int);
 int Connect_Serv(struct sockaddr_in);
 int tcp_listen(int);
 int checkserver(in_addr_t);
@@ -34,12 +34,12 @@ int main(int argc, char **argv)
 {
 	struct sockaddr_in cli_addr;
 	socklen_t sin_size = sizeof(struct sockaddr_in);
-    int connfd,sockfd;
+    int connfd, sockfd;
     int port;
 	pthread_t Clitid;
 	char opt;
 
-	if (argc!=3){
+	if (argc != 3){
         printf("Usage: %s -p port\n", argv[0]);
         return -1;
     }
@@ -54,8 +54,8 @@ int main(int argc, char **argv)
 			}
 	 }
 
-    sockfd=tcp_listen(port);
-    printf("listening on %s\n",argv[1]);
+    sockfd = tcp_listen(port);
+    printf("listening on %s\n", argv[1]);
 	for(;;){
 				connfd=accept(sockfd,(struct sockaddr *)&cli_addr, &sin_size);
 				if(connfd<0) {
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 				    continue;
 				}
 				if (checkclient(cli_addr.sin_addr.s_addr) == 1)
-					pthread_create(&Clitid,NULL,Connectionthread,(void*)connfd);
+					pthread_create(&Clitid, NULL, Connectionthread, (void*)connfd);
 				else
 					close(connfd);
     	}
@@ -74,18 +74,18 @@ int main(int argc, char **argv)
 
 void* Connectionthread(void* arg){
 	int clifd,servfd;
-	clifd=(int)(arg);
+	clifd = (int)(arg);
 	struct sockaddr_in servaddr;
-	socklen_t servlen=sizeof(struct sockaddr_in);
+	socklen_t servlen = sizeof(struct sockaddr_in);
 
 	pthread_detach(pthread_self());
 
-    int ret = getsockname(clifd,(struct sockaddr*)&servaddr,&servlen);
+    int ret = getsockname(clifd, (struct sockaddr*)&servaddr, &servlen);
     //printf("LISTEN INFO @ %s : %u \n",inet_ntoa(servaddr.sin_addr),ntohs(servaddr.sin_port));
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-	if ( (getsockopt(clifd,SOL_IP,SO_ORIGINAL_DST,&servaddr,&servlen)) != 0 ){
+	if ( (getsockopt(clifd, SOL_IP, SO_ORIGINAL_DST, &servaddr, &servlen)) != 0 ){
 		close(clifd);
 		printf("Could not get original destination.");
 		return NULL;
@@ -100,7 +100,7 @@ void* Connectionthread(void* arg){
 
 
     servfd = Connect_Serv(servaddr);
-  	Data_Trans(clifd,servfd);
+  	Data_Trans(clifd, servfd);
     close(servfd);
     close(clifd);
     return NULL;
@@ -109,7 +109,7 @@ void* Connectionthread(void* arg){
 
 int tcp_listen(int port)
 {
-	struct sockaddr_in cl_addr,proxyserver_addr;
+	struct sockaddr_in cl_addr, proxyserver_addr;
 	socklen_t sin_size = sizeof(struct sockaddr_in);
 	int sockfd, accept_sockfd, on = 1;
 
@@ -198,26 +198,26 @@ void Data_Trans(int clifd,int servfd)
 	FD_SET( clifd,&rset );
 	FD_SET( servfd,&rset );
 
-	maxfdp=(clifd>=servfd?clifd:servfd ) + 1;
+	maxfdp=(clifd >= servfd?clifd:servfd) + 1;
 	for(;;)
 	{
-		if(select( maxfdp,&rset,NULL,NULL,NULL ) < 0){
+		if(select( maxfdp, &rset, NULL, NULL, NULL) < 0){
 			printf("select error.");
 			continue;
 		}
 
-		if( FD_ISSET(clifd,&rset))
+		if( FD_ISSET(clifd, &rset))
 		{
-			length = read(clifd,cli_buf,MAXLINE);
-			if( length <= 0 ) return;
+			length = read(clifd, cli_buf, MAXLINE);
+			if(length <= 0) return;
 			else
-				if(send( servfd,cli_buf,length,0) <= 0) return;
+				if(send(servfd, cli_buf, length, 0) <= 0) return;
 		}
-		if( FD_ISSET(servfd,&rset) ){
-			length = read(servfd,serv_buf,MAXLINE);
+		if(FD_ISSET(servfd, &rset)){
+			length = read(servfd, serv_buf, MAXLINE);
 			if( length <= 0 ) return;
 			else
-				if(send(clifd,serv_buf,length,0) <= 0) return;
+				if(send(clifd, serv_buf, length, 0) <= 0) return;
 		}
 	}
 }
