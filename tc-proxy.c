@@ -28,6 +28,8 @@ int Connect_Serv(struct sockaddr_in);
 int tcp_listen(int);
 int checkserver(in_addr_t);
 int checkclient(in_addr_t);
+int FTPcheckP(int);
+int FTPcheckN(int);
 
 
 int main(int argc, char **argv)
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
 				    continue;
 				}
 				if (checkclient(cli_addr.sin_addr.s_addr) == 1)
-					pthread_create(&Clitid, NULL, Connectionthread, (void*)connfd);
+					pthread_create(&Clitid, NULL, Connectionthread, (void*)connfd);  // create child threads
 				else
 					close(connfd);
     	}
@@ -85,7 +87,7 @@ void* Connectionthread(void* arg){
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-	if ( (getsockopt(clifd, SOL_IP, SO_ORIGINAL_DST, &servaddr, &servlen)) != 0 ){
+	if ( (getsockopt(clifd, SOL_IP, SO_ORIGINAL_DST, &servaddr, &servlen)) != 0 ){	// get the former IP and port (Server)
 		close(clifd);
 		printf("Could not get original destination.");
 		return NULL;
