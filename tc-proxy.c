@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         printf("Usage: %s -p port\n", argv[0]);
         return -1;
     }
-	while( (opt = getopt(argc, argv, "p:")) != EOF) {
+	while( (opt = getopt(argc, argv, "p:")) != EOF ) {
 			switch(opt) {
 				case 'p':
 					port = (short) atoi(optarg);
@@ -100,6 +100,8 @@ void* Connectionthread(void* arg){
 		return NULL;
 	}
 
+	if (  )
+
 
     servfd = Connect_Serv(servaddr);
   	Data_Trans(clifd, servfd);
@@ -122,18 +124,18 @@ int tcp_listen(int port)
 	proxyserver_addr.sin_port = htons(port);
 
 	sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);			// create socket
-	if (sockfd < 0) {
+	if ( sockfd < 0 ) {
 		printf("Socket failed...Abort...\n");
 		return -1;
 	}
 	/* Set socket to be reusable */
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof(on));
 
-	if (bind(sockfd, (struct sockaddr *) &proxyserver_addr, sizeof(proxyserver_addr)) < 0) {
+	if ( bind(sockfd, (struct sockaddr *) &proxyserver_addr, sizeof(proxyserver_addr)) < 0 ) {
 		printf("Bind failed...Abort...\n");
 		return -1;
 	}
-	if (listen(sockfd, LISTENQ) < 0) {
+	if ( listen(sockfd, LISTENQ) < 0 ) {
 		printf("Listen failed...Abort...\n");
 		return -1;
 	}
@@ -146,7 +148,7 @@ int checkserver(in_addr_t serv_addr) {
 	hostinfo = gethostbyname(ALLOWED_SERVER);
 	allowedip = (int )hostinfo->h_addr;
 
-	if (allowedip == serv_addr)	{
+	if ( allowedip == serv_addr )	{
 		printf("Server IP authentication is passed !\n");
 		return 1;
 	}
@@ -161,7 +163,7 @@ int checkclient(in_addr_t cli_addr) {
 	int allowedip;
 	inet_aton(ALLOWED_CLIENTIP,(struct in_addr *)&allowedip);
 
-	if (allowedip == cli_addr)	{
+	if ( allowedip == cli_addr )	{
 		printf("Client IP authentication is passed !\n");
 		return 1;
 	}
@@ -178,18 +180,18 @@ int Connect_Serv(struct sockaddr_in servaddr)
 	//struct sockaddr_in server_addr; 		// holds IP address
 
 	remoteSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (remoteSocket < 0) {
+	if ( remoteSocket < 0 ) {
 		return printf("socket");
 	}
 	servaddr.sin_family= AF_INET;
 	cnt_stat = connect(remoteSocket, (struct sockaddr *) &servaddr, sizeof(servaddr));
-	if (cnt_stat < 0) {
+	if ( cnt_stat < 0 ) {
 		return printf("remote connect failed");
 	}
 	return remoteSocket;
 }
 
-void Data_Trans(int clifd,int servfd)
+void Data_Trans(int clifd, int servfd)
 {
 	int maxfdp, length;
 	fd_set rset;
@@ -203,23 +205,23 @@ void Data_Trans(int clifd,int servfd)
 	maxfdp=(clifd >= servfd?clifd:servfd) + 1;
 	for(;;)
 	{
-		if(select( maxfdp, &rset, NULL, NULL, NULL) < 0){
+		if( select(maxfdp, &rset, NULL, NULL, NULL) < 0 ){
 			printf("select error.");
 			continue;
 		}
 
-		if( FD_ISSET(clifd, &rset))
+		if( FD_ISSET(clifd, &rset) )
 		{
 			length = read(clifd, cli_buf, MAXLINE);
-			if(length <= 0) return;
+			if( length <= 0 ) return;
 			else
-				if(send(servfd, cli_buf, length, 0) <= 0) return;
+				if( send(servfd, cli_buf, length, 0) <= 0 ) return;
 		}
-		if(FD_ISSET(servfd, &rset)){
+		if( FD_ISSET(servfd, &rset) ){
 			length = read(servfd, serv_buf, MAXLINE);
 			if( length <= 0 ) return;
 			else
-				if(send(clifd, serv_buf, length, 0) <= 0) return;
+				if( send(clifd, serv_buf, length, 0) <= 0 ) return;
 		}
 	}
 }
