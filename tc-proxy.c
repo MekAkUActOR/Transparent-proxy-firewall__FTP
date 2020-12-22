@@ -28,8 +28,6 @@ int Connect_Serv(struct sockaddr_in);
 int tcp_listen(int);
 int checkserver(in_addr_t);
 int checkclient(in_addr_t);
-int FTPcheckP(int);
-int FTPcheckN(int);
 
 
 int main(int argc, char **argv)
