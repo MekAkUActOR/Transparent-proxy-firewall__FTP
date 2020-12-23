@@ -26,7 +26,7 @@
 char FORBIDDEN_SERVER[1][20] = {"portal.sjtu.edu.cn"};	// 202.120.2.1
 
 char ALLOWED_CLIENTIP[20] =  "192.168.48.8";			// virtual machine
-//public.sjtu.edu.cn
+
 char ALLOWED_SERVERIP[20] =  "202.120.2.2";				// public.sjtu.edu.cn
 
 static void * Connectionthread(void*);
