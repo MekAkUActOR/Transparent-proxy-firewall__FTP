@@ -44,9 +44,8 @@ int main(int argc, char **argv)
 	int connfd, sockfd;
 	int port;
 	pthread_t Clitid;
-	//get port	
 	char opt;
-	while((opt = getopt(argc, argv, "p:")) != EOF) {
+	while((opt = getopt(argc, argv, "p:")) != EOF) {	// get the working port of proxy firewall
 		switch(opt) {
 			case 'p':
 				port = (short) atoi(optarg);
@@ -78,13 +77,13 @@ int main(int argc, char **argv)
 
 /*
  * check client via checking the client address.
- * cli_addr: the client address the client socket we capture.
+ * cli_addr: the client address and the client socket we capture.
  * return whether the checkclient succeeds. 1 for success and -1 for
  * failure.
  */
 int checkclient(in_addr_t cli_addr) {
 	int allowedip;
-	inet_aton(ALLOWED_CLIENTIP,(struct in_addr *)&allowedip);
+	inet_aton(ALLOWED_CLIENTIP, (struct in_addr *)&allowedip);
 
 	if (allowedip == cli_addr)	{
 		printf("Client IP authentication is passed !\n");
@@ -98,7 +97,7 @@ int checkclient(in_addr_t cli_addr) {
 
 /*
  * the method for comparing strings for string ip address
- * str1 and str2 are the two string(ip address) waiting for comparison.
+ * str1 and str2 are the two strings waiting for comparison.
  * return the result of comparison. 1 for success and 0 for failure.
  */
 int str_compare(char *str1, char *str2){
@@ -108,7 +107,7 @@ int str_compare(char *str1, char *str2){
 		return 0;
 	} else{
 		int i;
-		for(i = 0;i < len1;i++){
+		for(i = 0; i < len1; i++){
 		    if(str1[i] != str2[i]){
 		    	return 0;
 		    }	
@@ -128,21 +127,21 @@ int checkserver(in_addr_t serv_addr) {
 	struct hostent *f_hostinfo;
 	int j;
 	char **forbiddenip;
-	for(j=0;j<sizeof(FORBIDDEN_SERVER)/sizeof(FORBIDDEN_SERVER[1]);j++){
+	for(j=0; j < sizeof(FORBIDDEN_SERVER)/sizeof(FORBIDDEN_SERVER[1]); j++){
 		f_hostinfo = gethostbyname(FORBIDDEN_SERVER[j]);  
 		forbiddenip = f_hostinfo->h_addr_list;
 		char f_str[32];
 		char *f_serv_ip;
 		struct in_addr f_s;  
-		f_s.s_addr=serv_addr;
+		f_s.s_addr = serv_addr;
 		//change net ip address to char string with dot
-		f_serv_ip=inet_ntoa(f_s);
+		f_serv_ip = inet_ntoa(f_s);
 		//printf("%s\n",f_serv_ip);
 		for(; *forbiddenip!=NULL; forbiddenip++){
 			//change binary to string with dot
 			//const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt);
 			inet_ntop(f_hostinfo->h_addrtype, *forbiddenip, f_str, sizeof(f_str));
-			if(str_compare(f_str,f_serv_ip)==1){
+			if(str_compare(f_str, f_serv_ip) == 1){
 			    printf("Server IP authentication is forbidden !\n");
 			        return -1;
 			}
@@ -178,7 +177,7 @@ int checkserver(in_addr_t serv_addr) {
 void* Connectionthread(void* arg){
 	pthread_detach(pthread_self());
 	int clifd,servfd;
-	clifd=*(int*)(arg);
+	clifd = *(int*)(arg);
 	struct sockaddr_in servaddr;
 	socklen_t servlen;
 	
@@ -194,7 +193,7 @@ void* Connectionthread(void* arg){
 	 */
 	int ret = getsockname(clifd, (struct sockaddr*)&servaddr, &servlen);
 	
-	if ((getsockopt(clifd,SOL_IP,SO_ORIGINAL_DST,&servaddr,&servlen)) != 0 ){
+	if ((getsockopt(clifd, SOL_IP, SO_ORIGINAL_DST, &servaddr, &servlen)) != 0 ){
 		//printf("%i\n",errno);
 		close(clifd);
 		printf("Could not get original destination.\n");
@@ -233,7 +232,7 @@ void* Connectionthread(void* arg){
  */
 int tcp_listen(int port)
 {
-	struct sockaddr_in cl_addr,proxyserver_addr;
+	struct sockaddr_in cl_addr, proxyserver_addr;
 	socklen_t sin_size = sizeof(struct sockaddr_in);
 	int sockfd, accept_sockfd, on = 1;
 
@@ -264,7 +263,7 @@ int tcp_listen(int port)
 }
 
 /*
- * connect server when all the checks have been passed.
+ * //connect server when all the checks have been passed.//
  * serveraddr is the server address we connected
  * return the successful socket
  */
@@ -277,7 +276,7 @@ int Connect_Serv(struct sockaddr_in serveraddr)
 	if (remoteSocket < 0) {
 		return printf("socket");
 	}
-	serveraddr.sin_family= AF_INET;
+	serveraddr.sin_family = AF_INET;
 	/*
 	 * int connect(int s, const struct sockaddr *name, int *namelen);
 	 */
@@ -285,7 +284,7 @@ int Connect_Serv(struct sockaddr_in serveraddr)
 	if (cnt_stat < 0) {
 		return printf("remote connect failed\n");
 	}else{
-	printf("connected remote server -------------------->%s:%u.\n",inet_ntoa(serveraddr.sin_addr),ntohs(serveraddr.sin_port));
+	printf("connected remote server -------------------->%s:%u.\n", inet_ntoa(serveraddr.sin_addr), ntohs(serveraddr.sin_port));
 	}
 	return remoteSocket;
 }
@@ -349,41 +348,41 @@ int parse_buff(char *buf) {
 /*
  * convert the code into different version
  */
-int code_convert(char *from_charset,char *to_charset,char *inbuf,int inlen,char *outbuf,int outlen)  
+int code_convert(char *from_charset, char *to_charset, char *inbuf, int inlen, char *outbuf, int outlen)  
 {  
-        iconv_t cd;  
-        int rc;  
-        char **pin = &inbuf;  
-        char **pout = &outbuf;  
-  
-        cd = iconv_open(to_charset,from_charset);  
-        if (cd==0)  
-                return -1;  
-        memset(outbuf,0,outlen);  
-        if (iconv(cd,pin,&inlen,pout,&outlen) == -1)  
-                return -1;  
-        iconv_close(cd);  
-        return 0;  
+    iconv_t cd;  
+    int rc;  
+    char **pin = &inbuf;  
+    char **pout = &outbuf;  
+
+    cd = iconv_open(to_charset, from_charset);  
+    if (cd == 0)  
+            return -1;  
+    memset(outbuf, 0, outlen);  
+    if (iconv(cd, pin, &inlen, pout, &outlen) == -1)  
+            return -1;  
+    iconv_close(cd);  
+    return 0;  
 }  
  
- /*
-  * change from utf-8 to gb2312
-  */
-int u2g(char *inbuf,int inlen,char *outbuf,int outlen)  
+/*
+* change from utf-8 to gb2312
+*/
+int u2g(char *inbuf, int inlen, char *outbuf, int outlen)  
 {  
-        return code_convert("utf-8","gb2312",inbuf,inlen,outbuf,outlen);  
+        return code_convert("utf-8", "gb2312", inbuf, inlen, outbuf, outlen);  
 }  
  
 /*
 * change from gb2312 to utf-8
 */
-int g2u(char *inbuf,size_t inlen,char *outbuf,size_t outlen)  
+int g2u(char *inbuf, size_t inlen, char *outbuf, size_t outlen)  
 {  
-        return code_convert("gb2312","utf-8",inbuf,inlen,outbuf,outlen);  
+        return code_convert("gb2312", "utf-8", inbuf, inlen, outbuf, outlen);  
 }  
 
 /*
- * parsing the ftp request sent from the client
+ * //parsing the ftp request sent from the client//
  * cli_buf is the content of the request
  * length is the length of cli_buf
  */
@@ -401,7 +400,7 @@ void parse_ftp_client(char* cli_buf, int length) {
 	}
 	//add eof to the end of string to easily pass the string and compare
 	buf[4]='\0';
-	printf("\033[1;33m[->]\033[mclient---%s---->server: ",buf);
+	printf("\033[1;33m[->]\033[mclient---%s---->server: ", buf);
 	
 	sig = parse_buff(buf);
 	switch(sig) 
@@ -492,7 +491,7 @@ void parse_ftp_server(char* serv_buf, int length) {
 
 	int i = 0;
 	for(i=0; i<3; i++){
-		buf[i]=*(serv_buf + i);
+		buf[i] = *(serv_buf + i);
     }
     buf[3]='\0';
     printf("\033[0;36m[<-]\033[mserver---%s--->client: ", buf);
