@@ -25,13 +25,9 @@
 
 char FORBIDDEN_SERVER[1][20] = {"portal.sjtu.edu.cn"};	// 202.120.2.1
 
-char ALLOWED_CLIENTIP[20] = "192.168.33.11";			// virtual machine
+char ALLOWED_CLIENTIP[20] =  "192.168.33.11";			// virtual machine
 
-char ALLOWED_SERVERIP[20] = "202.120.2.2";				// public.sjtu.edu.cn
-
-char FORBIDDEN_USER[10][40] = {"yaolh","","","","","","","","",""};
-
-char FORBIDDEN_FILENAME[10][40] = {"test.txt","","","","","","","","",""};
+char ALLOWED_SERVERIP[20] =  "202.120.2.2";				// public.sjtu.edu.cn
 
 static void * Connectionthread(void*);
 void Data_Trans(int, int, int);
@@ -111,8 +107,7 @@ int str_compare(char *str1, char *str2){
 		return 0;
 	} else{
 		int i;
-		for(i = 0; i < len1; i++)
-		{
+		for(i = 0; i < len1; i++){
 		    if(str1[i] != str2[i]){
 		    	return 0;
 		    }	
@@ -395,7 +390,7 @@ int g2u(char *inbuf, size_t inlen, char *outbuf, size_t outlen)
  * cli_buf is the content of the request
  * length is the length of cli_buf
  */
-int parse_ftp_client(char* cli_buf, int length) {
+void parse_ftp_client(char* cli_buf, int length) {
 	char buf[5];
 	int sig = 1000;
 	char user[length-5];
@@ -418,22 +413,10 @@ int parse_ftp_client(char* cli_buf, int length) {
 		{
 			int j = 0;
 			for(j = 5; j<length; j++){
-				user[j - 5] = *(cli_buf + j);
+				user[j-5] = *(cli_buf + j);
 			}
-			user[length-7] = '\0';
+			user[length-6] = '\0';
 			printf("CLIENT'S USERNAME: %s\n", user);
-			int i = 0;
-			//printf("userlen: %ld\n", strlen(user));
-			//printf("forbiduser: %s\n", FORBIDDEN_USER[0]);
-			//printf("forbuserlen: %ld\n", strlen(FORBIDDEN_USER[0]));
-			for(i = 0; i < 10; i++)
-			{
-				if(str_compare(user, FORBIDDEN_USER[i]))
-				{
-					printf("FORBIDDEN USER: %s\n", user);
-					return 1;
-				}
-			}
 			break;
 		}
 		case 1: 
@@ -463,21 +446,9 @@ int parse_ftp_client(char* cli_buf, int length) {
 			for(j=5; j<length; j++){
 				file[j-5] = *(cli_buf+j);
 			}
-			file[length-7] = '\0';
+			file[length-6] = '\0';
 			g2u(file, length - 5, temp, MAXLINE);
 			printf("DOWNLOAD FILE: %s\n", temp);
-			int i = 0;
-			//printf("filelen: %ld\n", strlen(temp));
-			//printf("forbidfile: %s\n", FORBIDDEN_FILENAME[0]);
-			//printf("forbfilelen: %ld\n", strlen(FORBIDDEN_FILENAME[0]));
-			for(i = 0; i < 10; i++)
-			{
-				if(str_compare(temp, FORBIDDEN_FILENAME[i]))
-				{
-					printf("FORBIDDEN FILE: %s\n", temp);
-					return 1;
-				}
-			}
 			break;
 		}
 		case 4: 
@@ -499,7 +470,7 @@ int parse_ftp_client(char* cli_buf, int length) {
 			}
 			dir[length-5] = '\0';
 			//printf("CHANGE TO DIRETORY %s\n",dir);
-			g2u(dir, length-5, temp, MAXLINE);
+			g2u(dir, length-5,temp, MAXLINE);
 			printf("CHANGE TO DIRETORY %s\n", temp);
 			break;
 		}
@@ -516,7 +487,6 @@ int parse_ftp_client(char* cli_buf, int length) {
 		default:
 			printf("OTHERS!\n");
 	}
-	return 0;
 }
 
 /*
@@ -631,32 +601,29 @@ void Data_Trans(int clifd,int servfd, int is_ftp)
 
 		if(FD_ISSET(clifd,&rset))
 		{
-			length = read(clifd, cli_buf, MAXLINE);
+			length = read(clifd,cli_buf,MAXLINE);
 			if(length <= 0) return;
 			else 
 			{
 				if(is_ftp) 
 				{
-					if(parse_ftp_client(cli_buf, length))
-						continue;
+					parse_ftp_client(cli_buf, length);
 				}
-				if(send(servfd, cli_buf, length, 0) <= 0) 
+				if(send(servfd,cli_buf,length,0) <= 0) 
 				{
 					return;
 				}
 			}
 		}
-		if(FD_ISSET(servfd,&rset))
-		{
-			length = read(servfd, serv_buf, MAXLINE);
+		if(FD_ISSET(servfd,&rset) ){
+			length = read(servfd,serv_buf,MAXLINE);
 			if(length <= 0) return;
 			else 
 				if(is_ftp) 
 				{
 					parse_ftp_server(serv_buf, length);
 				}
-				if(send(clifd, serv_buf, length, 0) <= 0)
-				{
+				if(send(clifd,serv_buf,length,0) <= 0) {
 					return;
 				}
 		}
