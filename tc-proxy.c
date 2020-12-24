@@ -18,9 +18,9 @@
 #define LISTENQ 10
 #define MAXLINE 4096
 
-#define ALLOWED_SERVER "bbs.sjtu.edu.cn"
+#define ALLOWED_SERVER "sjtu.edu.cn"
 
-char ALLOWED_CLIENTIP[20] =  "192.168.47.183";
+char ALLOWED_CLIENTIP[20] =  "192.168.33.11";
 
 static void * Connectionthread(void*);
 void Data_Trans(int, int);
@@ -98,7 +98,7 @@ void* Connectionthread(void* arg){
 		return NULL;
 	}
 
-	if (  )
+	//if (  )
 
 
     servfd = Connect_Serv(servaddr);

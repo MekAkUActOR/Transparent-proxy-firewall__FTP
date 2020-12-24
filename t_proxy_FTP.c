@@ -25,7 +25,7 @@
 
 char FORBIDDEN_SERVER[1][20] = {"portal.sjtu.edu.cn"};	// 202.120.2.1
 
-char ALLOWED_CLIENTIP[20] =  "192.168.48.8";			// virtual machine
+char ALLOWED_CLIENTIP[20] =  "192.168.33.11";			// virtual machine
 
 char ALLOWED_SERVERIP[20] =  "202.120.2.2";				// public.sjtu.edu.cn
 
@@ -409,47 +409,47 @@ void parse_ftp_client(char* cli_buf, int length) {
 		{
 			int j = 0;
 			for(j = 5; j<length; j++){
-				user[j-5]=*(cli_buf + j);
+				user[j-5] = *(cli_buf + j);
 			}
-			user[length-6]='\0';
-			printf("CLIENT'S USERNAME: %s\n",user);
+			user[length-6] = '\0';
+			printf("CLIENT'S USERNAME: %s\n", user);
 			break;
 		}
 		case 1: 
 		{
 			int j = 0;
-			for(j=5;j<length-1;j++){
-				passwd[j-5]=*(cli_buf + j);
+			for(j=5; j<length-1; j++){
+				passwd[j-5] = *(cli_buf + j);
 			}
-			passwd[length-6]='\0';
-			printf("CLIENT'S PASSWD: %s\n",passwd);
+			passwd[length-6] = '\0';
+			printf("CLIENT'S PASSWD: %s\n", passwd);
 			break;
 		}
 		case 2: 
 		{
 			int j = 0;
 			for(j=5; j<length-1; j++){
-				file[j-5]=*(cli_buf+j);
+				file[j-5] = *(cli_buf+j);
 			}
-			file[length-6]='\0';
-			g2u(file,length-5,temp,MAXLINE);
-			printf("CLIENT'S SIZE: %lu\n",sizeof(temp)/sizeof(temp[0]));
+			file[length-6] = '\0';
+			g2u(file, length-5, temp, MAXLINE);
+			printf("CLIENT'S SIZE: %lu\n", sizeof(temp)/sizeof(temp[0]));
 			break;
 		}
 		case 3: 
 		{
 			int j = 0;
-			for(j=5;j<length;j++){
-				file[j-5]=*(cli_buf+j);
+			for(j=5; j<length; j++){
+				file[j-5] = *(cli_buf+j);
 			}
-			file[length-6]='\0';
-			g2u(file,length-5,temp,MAXLINE);
-			printf("DOWNLOAD FILE: %s\n",temp);
+			file[length-6] = '\0';
+			g2u(file, length - 5, temp, MAXLINE);
+			printf("DOWNLOAD FILE: %s\n", temp);
 			break;
 		}
 		case 4: 
 		{
-			printf("CLIENT'S PASSIVE MODE %s\n","PASV");
+			printf("CLIENT'S PASSIVE MODE %s\n", "PASV");
 			break;
 		}
 		case 5: 
@@ -461,13 +461,13 @@ void parse_ftp_client(char* cli_buf, int length) {
 		{
 			char dir[length-4];
 			int j = 0;
-			for(j=4;j<length;j++){
-			    dir[j-4]=*(cli_buf+j);
+			for(j=4; j<length; j++){
+			    dir[j-4] = *(cli_buf+j);
 			}
-			dir[length-5]='\0';
+			dir[length-5] = '\0';
 			//printf("CHANGE TO DIRETORY %s\n",dir);
 			g2u(dir, length-5,temp, MAXLINE);
-			printf("CHANGE TO DIRETORY %s\n",temp);
+			printf("CHANGE TO DIRETORY %s\n", temp);
 			break;
 		}
 		case 7: 
@@ -476,7 +476,7 @@ void parse_ftp_client(char* cli_buf, int length) {
 			break;
 		}
 		default:
-			printf("OTEHRS!\n");
+			printf("OTHERS!\n");
 	}
 }
 
@@ -504,7 +504,7 @@ void parse_ftp_server(char* serv_buf, int length) {
   		}
   		case 150:
   		{
-  			printf("successfully built the connection!\n");
+  			printf("successfully built the connection! data channel opening!\n");
   			break;
   		}
   		case 200:
