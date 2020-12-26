@@ -29,7 +29,7 @@ char ALLOWED_CLIENTIP[20] = "192.168.33.11";			// virtual machine
 
 char ALLOWED_SERVERIP[20] = "202.120.2.2";				// public.sjtu.edu.cn
 
-char FORBIDDEN_USER[10][40] = {"yaolh","","","","","","","","",""};
+char FORBIDDEN_USER[10][40] = {"yaolh","scott0518","","","","","","","",""};
 
 char FORBIDDEN_FILENAME[10][40] = {"test.txt","","","","","","","","",""};
 
@@ -610,7 +610,7 @@ void parse_ftp_server(char* serv_buf, int length) {
  * transform the data after the socket has been successfully connected.
  * clifd is the client socket and servfd is the server socket
  */
-void Data_Trans(int clifd,int servfd, int is_ftp)
+void Data_Trans(int clifd, int servfd, int is_ftp)
 {
 	int maxfdp, length;
 	fd_set rset;
@@ -622,36 +622,36 @@ void Data_Trans(int clifd,int servfd, int is_ftp)
 	maxfdp = (clifd >= servfd?clifd:servfd ) + 1;
 	for(;;)
 	{
-		FD_SET(clifd,&rset);
-		FD_SET(servfd,&rset);
-		if(select(maxfdp,&rset,NULL,NULL,NULL) < 0){
+		FD_SET(clifd, &rset);
+		FD_SET(servfd, &rset);
+		if(select(maxfdp, &rset, NULL, NULL, NULL) < 0){
 			printf("select error.");
 			break;
 		}
 
-		if(FD_ISSET(clifd,&rset))
+		if(FD_ISSET(clifd, &rset))
 		{
 			length = read(clifd, cli_buf, MAXLINE);
 			if(length <= 0) return;
-			else 
+			else
 			{
 				if(is_ftp) 
 				{
 					if(parse_ftp_client(cli_buf, length))
 						continue;
 				}
-				if(send(servfd, cli_buf, length, 0) <= 0) 
+				if(send(servfd, cli_buf, length, 0) <= 0)
 				{
 					return;
 				}
 			}
 		}
-		if(FD_ISSET(servfd,&rset))
+		if(FD_ISSET(servfd, &rset))
 		{
 			length = read(servfd, serv_buf, MAXLINE);
 			if(length <= 0) return;
 			else 
-				if(is_ftp) 
+				if(is_ftp)
 				{
 					parse_ftp_server(serv_buf, length);
 				}
